@@ -1,0 +1,841 @@
+{% extends 'exam/base.html' %}
+
+{% block title %}Take Exam{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 p-5 bg-light">
+        <h1 class="text-center text-primary fw-bold display-4">
+            🎓 Take Your Exam
+        </h1>
+        <p class="text-center text-muted fs-4">
+        </p>
+
+        {% if questions %}
+        <div class="row g-4 mt-5">
+            {% for question in questions %}
+<div class="col-md-12">
+    <div class="card border-0 shadow-sm rounded-3 p-4 h-100">
+        <div class="card-body">
+            <h3 class="card-title fw-semibold text-dark fs-3">
+                Q{{ forloop.counter }}: {{ question.text }}
+            </h3>
+
+            
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center mt-5 fs-4">
+            <i class="bi bi-exclamation-circle-fill fs-2"></i> <br>
+            No questions available at the moment.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+
+
+
+<script>
+/*function playAudio(questionId) {
+    fetch(`/tts/${questionId}/`).then(response => response.json()).then(data => {
+        var audio = new Audio(data.audio_url);
+        audio.play();
+    });
+}*/
+
+/*function getCSRFToken() {
+    let csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+    return csrfToken ? csrfToken.split('=')[1] : '';
+}
+
+
+function startRecording(questionId) {
+    fetch("/stt/", { method: "POST" })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Recognized Speech:", data.answer_text);
+
+        // Prepare JSON data
+        const submissionData = {
+            student_name: "Student",
+            answer_text: data.answer_text
+        };
+
+        // Send recognized answer to Django backend
+        fetch(`/submit/${questionId}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(submissionData)  // Send JSON format
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log("Submission Response:", result);
+            alert("Answer Submitted Successfully!");
+        })
+        .catch(error => console.error("Submission error:", error));
+    })
+    .catch(error => console.error("Speech recognition error:", error));
+}
+*/
+
+
+
+
+</script>
+
+
+
+<script>
+    /*function waitForReadCommand(questionId) {
+        // Use the Web Speech API for speech recognition
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.start();
+    
+        // Notify the user that we're listening for the "Read Question" command
+        alert("Say 'Read Question' to play the audio.");
+    
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+    
+            if (transcript.includes("read question")) {
+                playAudio(questionId);
+            } else {
+                alert("Unrecognized command. Please say 'Read Question'.");
+            }
+        };
+    
+        recognition.onerror = function(event) {
+            alert("Speech recognition error: " + event.error);
+        };
+    }
+    
+    function playAudio(questionId) {
+        // Fetch and play the question's audio
+        const audio = new Audio(`/media/questions/question_${questionId}.mp3`);
+        audio.play();
+    }*/
+    </script>
+
+
+<script>
+
+/*document.addEventListener("DOMContentLoaded", function () {
+    startListeningForCommands();
+});
+
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = "en-US";
+recognition.continuous = true;
+recognition.interimResults = false;
+
+let isRecognizing = false;
+let commandQueue = [];
+let processingCommand = false;
+let speechSynthesisActive = false;
+let currentQuestion = null;
+let capturedAnswer = null;
+
+// Start listening for voice commands
+function startListeningForCommands() {
+    if (!isRecognizing) {
+        isRecognizing = true;
+        recognition.start();
+    }
+
+    recognition.onresult = function (event) {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+        console.log("Recognized Speech:", transcript);
+
+        commandQueue.push(transcript);
+        processNextCommand();
+    };
+
+    recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === "aborted" || event.error === "network") {
+            isRecognizing = false;
+            recognition.start();
+        }
+    };
+
+    recognition.onend = function () {
+        if (!speechSynthesisActive && isRecognizing) {
+            setTimeout(() => recognition.start(), 1000);
+        }
+    };
+}
+
+// Process commands in the queue
+async function processNextCommand() {
+    if (processingCommand || commandQueue.length === 0) return;
+    processingCommand = true;
+
+    const command = commandQueue.shift();
+    console.log("Processing Command:", command);
+
+    if (command.startsWith("read question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await readSpecificQuestion(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command.startsWith("answer question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await startRecordingAnswer(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command === "submit answer") {
+        await submitCapturedAnswer();
+    } 
+    else if (command.startsWith("skip question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await skipQuestion(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command === "stop") {
+        stopSpeechRecognition();
+    } 
+    else {
+        speakText("Invalid command.");
+    }
+
+    processingCommand = false;
+    processNextCommand();
+}
+
+// Extract number from spoken command (supports both words & numbers)
+function extractNumber(command) {
+    const numberMap = {
+        "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+        "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"
+    };
+    let match = command.match(/\d+/) || command.match(/one|two|three|four|five|six|seven|eight|nine|ten/);
+    return match ? numberMap[match[0]] || match[0] : null;
+}
+
+// Read a specific question aloud
+/*async function readSpecificQuestion(questionNumber) {
+    console.log(`Reading Question ${questionNumber}...`);
+    currentQuestion = questionNumber;
+
+    try {
+        let response = await fetch(`/tts/${questionNumber}/`);
+        let data = await response.json();
+
+        if (data.audio_url) {
+            let audio = new Audio(data.audio_url);
+            audio.play();
+        } else {
+            speakText("Invalid question number.");
+        }
+    } catch (error) {
+        console.error("Error fetching question audio:", error);
+        speakText("Error reading the question.");
+    }
+}*/
+
+
+
+
+
+// Ensure the browser allows audio playback
+/*document.addEventListener("click", () => {
+    let silentAudio = new Audio();
+    silentAudio.play().catch(() => {});
+}, { once: true });
+
+// Read a specific question aloud
+async function readSpecificQuestion(questionNumber) {
+    console.log(`Reading Question ${questionNumber}...`);
+    currentQuestion = questionNumber;
+
+    try {
+        let response = await fetch(`/tts/${questionNumber}/`);
+        let data = await response.json();
+
+        if (data.audio_url) {
+            let audio = new Audio(data.audio_url);
+
+            // Try playing immediately
+            let playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Audio playback blocked. Retrying after user interaction.");
+                    
+                    // Try again after a short delay
+                    setTimeout(() => {
+                        audio.play().catch(err => console.error("Audio failed again:", err));
+                    }, 500);
+                });
+            }
+        } else {
+            speakText("Invalid question number.");
+        }
+    } catch (error) {
+        console.error("Error fetching question audio:", error);
+        speakText("Error reading the question.");
+    }
+}
+
+
+// Capture answer for a question
+async function startRecordingAnswer(questionNumber) {
+    if (!currentQuestion || currentQuestion !== questionNumber) {
+        speakText("You need to read the question first.");
+        return;
+    }
+
+    speakText("Please say your answer now.", async () => {
+        try {
+            let response = await fetch("/stt/", { method: "POST" });
+            let data = await response.json();
+
+            console.log("Recognized Speech:", data.answer_text);
+            capturedAnswer = data.answer_text;
+
+            let submissionData = {
+                student_name: "Student",
+                answer_text: capturedAnswer
+            };
+
+            // Send recognized answer to Django backend
+            let submitResponse = await fetch(`/submit/${questionNumber}/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(submissionData)
+            });
+
+            let result = await submitResponse.json();
+            console.log("Submission Response:", result);
+            speakText("Answer submitted successfully.");
+        } catch (error) {
+            console.error("Speech recognition error:", error);
+            speakText("Error capturing answer.");
+        }
+    });
+}
+
+// Submit captured answer
+async function submitCapturedAnswer() {
+    if (!currentQuestion || !capturedAnswer) {
+        speakText("No answer to submit.");
+        return;
+    }
+
+    try {
+        let response = await fetch(`/submit/${currentQuestion}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answer_text: capturedAnswer })
+        });
+
+        let data = await response.json();
+        console.log("Server Response:", data);
+        speakText("Answer successfully submitted.");
+        capturedAnswer = null; // Reset captured answer after submission
+    } catch (error) {
+        console.error("Submission Error:", error);
+        speakText("Error submitting the answer.");
+    }
+}
+
+// Skip a question (save as NULL)
+async function skipQuestion(questionNumber) {
+    try {
+        let response = await fetch(`/submit/${questionNumber}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answer_text: null })  // Save as NULL
+        });
+
+        let data = await response.json();
+        console.log("Skipped Question:", data);
+        speakText("Question skipped.");
+    } catch (error) {
+        console.error("Skipping Error:", error);
+        speakText("Error skipping the question.");
+    }
+}
+
+// Speak text and wait before continuing
+function speakText(text, callback = null) {
+    speechSynthesisActive = true;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 0.9;
+    
+    speech.onend = () => {
+        speechSynthesisActive = false;
+        if (callback) callback();
+    };
+
+    speechSynthesis.speak(speech);
+}
+
+// Stop speech recognition
+function stopSpeechRecognition() {
+    isRecognizing = false;
+    recognition.stop();
+    speechSynthesis.cancel();
+
+    // Display stop message on screen
+    const messageDiv = document.createElement("div");
+    messageDiv.innerHTML = `<p style="color: red; font-weight: bold; text-align: center;">Speech recognition stopped.</p>`;
+    document.body.appendChild(messageDiv);
+
+    speakText("Speech recognition stopped.");
+}*/
+</script>    
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    startListeningForCommands();
+});
+
+const totalQuestions = 10; // Or however many questions you have
+
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = "en-US";
+recognition.continuous = true;
+recognition.interimResults = false;
+
+let isRecognizing = false;
+let commandQueue = [];
+let processingCommand = false;
+let speechSynthesisActive = false;
+let currentQuestion = null;
+let capturedAnswer = null;
+
+// Start listening for commands
+function startListeningForCommands() {
+    if (!isRecognizing) {
+        isRecognizing = true;
+        recognition.start();
+    }
+
+    recognition.onresult = function (event) {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+        console.log("Recognized Speech:", transcript);
+
+        commandQueue.push(transcript);
+        processNextCommand();
+    };
+
+    recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+        if (event.error === "aborted" || event.error === "network") {
+            isRecognizing = false;
+            recognition.start();
+        }
+    };
+
+    recognition.onend = function () {
+        if (!speechSynthesisActive && isRecognizing) {
+            setTimeout(() => recognition.start(), 1000);
+        }
+    };
+}
+
+
+
+function speakText(text, callback = null) {
+    // Resume speechSynthesis context if needed
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+
+    speechSynthesisActive = true;
+
+    utterance.onend = () => {
+        speechSynthesisActive = false;
+        if (callback) callback();
+    };
+
+    utterance.onerror = (e) => {
+        console.error("Speech synthesis error:", e.error);
+        speechSynthesisActive = false;
+        if (callback) callback();
+    };
+
+    // Resume audio context (important for autoplay policy)
+    if (typeof speechSynthesis.resume === "function") {
+        speechSynthesis.resume();
+    }
+
+    speechSynthesis.speak(utterance);
+}
+
+// Process commands in the queue
+async function processNextCommand() {
+    if (processingCommand || commandQueue.length === 0) return;
+    processingCommand = true;
+
+    const command = commandQueue.shift();
+    console.log("Processing Command:", command);
+    
+
+    if (command === "start") {
+        speakText("Answer The Following ten question");
+    } 
+    else if (command.startsWith("read question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await readSpecificQuestion(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command.startsWith("answer question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await startRecordingAnswer(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command === "submit answer") {
+        await submitCapturedAnswer();
+    } 
+    else if (command.startsWith("skip question")) {
+        const questionNumber = extractNumber(command);
+        if (questionNumber) {
+            await skipQuestion(questionNumber);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } 
+    else if (command === "stop") {
+        stopSpeechRecognition();
+    } 
+    else {
+        speakText("Invalid command.");
+    }
+
+    processingCommand = false;
+    processNextCommand();
+}
+
+// Extract question number from command
+function extractNumber(command) {
+    const numberMap = {
+        "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+        "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"
+    };
+    let match = command.match(/\d+/) || command.match(/one|two|three|four|five|six|seven|eight|nine|ten/);
+    return match ? numberMap[match[0]] || match[0] : null;
+}
+
+// Read a specific question aloud
+document.addEventListener("click", () => {
+    let silentAudio = new Audio();
+    silentAudio.play().catch(() => {});
+}, { once: true });
+
+// Read a specific question aloud
+async function readSpecificQuestion(questionNumber) {
+    console.log(`Reading Question ${questionNumber}...`);
+    currentQuestion = questionNumber;
+
+    try {
+        let response = await fetch(`/tts/${questionNumber}/`);
+        let data = await response.json();
+
+        if (data.audio_url) {
+            let audio = new Audio(data.audio_url);
+
+            // Try playing immediately
+            let playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Audio playback blocked. Retrying after user interaction.");
+                    
+                    // Try again after a short delay
+                    setTimeout(() => {
+                        audio.play().catch(err => console.error("Audio failed again:", err));
+                    }, 500);
+                });
+            }
+        } else {
+            speakText("Invalid question number.");
+        }
+    } catch (error) {
+        console.error("Error fetching question audio:", error);
+        speakText("Error reading the question.");
+    }
+}
+
+
+
+/*async function readSpecificQuestion(questionNumber) {
+    console.log(`Reading Question ${questionNumber}...`);
+
+    try {
+        const response = await fetch(`/api/question/${questionNumber}/`);
+        const data = await response.json();
+
+        if (data.text) {
+            let fullText = `Question ${questionNumber}. ${data.text}. `;
+            if (data.option_a) fullText += `Option A: ${data.option_a}. `;
+            if (data.option_b) fullText += `Option B: ${data.option_b}. `;
+            if (data.option_c) fullText += `Option C: ${data.option_c}. `;
+            if (data.option_d) fullText += `Option D: ${data.option_d}. `;
+
+            speakText(fullText);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } catch (error) {
+        console.error("Error fetching question:", error);
+        speakText("Error reading the question.");
+    }
+}
+
+function speakText(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+}*/
+
+/*async function readSpecificQuestion(questionNumber) {
+    console.log(`Reading Question ${questionNumber}...`);
+
+    try {
+        const response = await fetch(`/api/question/${questionNumber}/`);
+        const data = await response.json();
+
+        if (data.text) {
+            let fullText = `Question ${questionNumber}. ${data.text}. `;
+            if (data.option_a) fullText += `Option A: ${data.option_a}. `;
+            if (data.option_b) fullText += `Option B: ${data.option_b}. `;
+            if (data.option_c) fullText += `Option C: ${data.option_c}. `;
+            if (data.option_d) fullText += `Option D: ${data.option_d}. `;
+
+            speakText(fullText);
+        } else {
+            speakText("Invalid question number.");
+        }
+    } catch (error) {
+        console.error("Error fetching question:", error);
+        speakText("Error reading the question.");
+    }
+}
+
+function speakText(text) {
+    speechSynthesis.cancel(); // Cancel any previous speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+
+    function setVoiceAndSpeak() {
+        const voices = speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices[0];
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+        }
+        speechSynthesis.speak(utterance);
+    }
+
+    if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+    } else {
+        setVoiceAndSpeak();
+    }
+}*/
+
+
+
+
+
+
+
+
+// Capture answer for a question
+async function startRecordingAnswer(questionNumber) {
+    console.log(`Processing answer for Question ${questionNumber}...`);
+
+    // Stop command recognition before capturing the answer
+    recognition.stop();
+    console.log("🔴 Command recognition paused.");
+
+    speakText("Please say your answer now.");
+    console.log("🎤 Listening for answer...");
+
+    // Capture speech input
+    const answer = await captureSpeechInput();
+
+    if (!answer) {
+        console.log("❌ No answer detected.");
+        await speakText("I didn't catch that. Please repeat.");
+        recognition.start();  // Restart command recognition
+        console.log("🟢 Command recognition resumed.");
+        return;
+    }
+
+    console.log("Recognized Answer:", answer);
+
+    const submissionData = {
+        student_name: "Default Student", // Ensure a valid student name is sent
+        answer_text: answer
+    };
+
+    try {
+        const response = await fetch(`/submit/${questionNumber}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(submissionData)
+        });
+
+        const result = await response.json();
+
+        if (result.message === "Answer submitted successfully!") {
+            console.log("✅ Answer stored in database.");
+            await speakText("Answer submitted successfully.");
+        } else {
+            console.error("❌ Submission failed:", result.error);
+            await speakText("Error submitting the answer.");
+        }
+    } catch (error) {
+        console.error("❌ Submission error:", error);
+        await speakText("Error submitting the answer.");
+    }
+
+    // Resume command recognition after answer submission
+    console.log("🟢 Resuming command recognition...");
+    recognition.start();
+}
+
+// Helper function to capture speech input
+function captureSpeechInput() {
+    return new Promise((resolve) => {
+        const speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        speechRecognition.lang = 'en-US';
+        speechRecognition.continuous = false;
+        speechRecognition.interimResults = false;
+
+        speechRecognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript.trim();
+            console.log("Captured Speech:", transcript);
+            resolve(transcript);
+        };
+
+        speechRecognition.onerror = function (event) {
+            console.error("❌ Speech recognition error:", event.error);
+            resolve(null);
+        };
+
+        speechRecognition.onend = function () {
+            console.log("🎤 Speech recognition ended.");
+        };
+
+        speechRecognition.start();
+    });
+}
+
+
+// Submit captured answer
+async function submitCapturedAnswer() {
+    if (!currentQuestion || !capturedAnswer) {
+        speakText("No answer to submit.");
+        return;
+    }
+
+    try {
+        let response = await fetch(`/submit/${currentQuestion}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answer_text: capturedAnswer })
+        });
+
+        let data = await response.json();
+        console.log("Server Response:", data);
+        
+        speakText("Answer submitted successfully.");
+        capturedAnswer = null; // Reset captured answer after submission
+    } catch (error) {
+        console.error("Submission Error:", error);
+        speakText("Error submitting the answer.");
+    }
+}
+
+// Skip a question (save as NULL)
+// Skip a question (save as NULL)
+// Skip a question (store empty string in database)
+async function skipQuestion(questionNumber) {
+    try {
+        let response = await fetch(`/submit/${questionNumber}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                student_name: "Default Student",  // Ensure a student name is included
+                answer_text: "Null"   // Empty string instead of null
+            })  
+        });
+
+        let data = await response.json();
+        if (response.ok) {
+            console.log("Skipped Question:", data);
+            speakText("Question skipped successfully.");
+        } else {
+            console.error("Skipping Error:", data);
+            speakText("Error skipping the question.");
+        }
+    } catch (error) {
+        console.error("Skipping Error:", error);
+        speakText("Error skipping the question.");
+    }
+}
+
+// Speak text and wait before continuing
+function speakText(text, callback = null) {
+    speechSynthesisActive = true;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 0.9;
+    
+    speech.onend = () => {
+        speechSynthesisActive = false;
+        if (callback) callback();
+    };
+
+    speechSynthesis.speak(speech);
+}
+
+// Stop speech recognition
+function stopSpeechRecognition() {
+    isRecognizing = false;
+    recognition.stop();
+    speechSynthesis.cancel();
+
+    // Display stop message on screen
+    const messageDiv = document.createElement("div");
+    messageDiv.innerHTML = `<p style="color: red; font-weight: bold; text-align: center;">Speech recognition stopped.</p>`;
+    document.body.appendChild(messageDiv);
+
+    speakText("Speech recognition stopped.");
+}
+
+</script>
+    
+{% endblock %}

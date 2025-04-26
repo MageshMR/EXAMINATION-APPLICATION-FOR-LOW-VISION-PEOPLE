@@ -1,0 +1,9 @@
+<!-- templates/voice/login_voice.html -->
+<h2>Voice Login</h2>
+<p>Please say: <strong>"Can you speak for login purpose"</strong></p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="file" name="voice" accept="audio/wav" required />
+  <button type="submit">Login</button>
+</form>

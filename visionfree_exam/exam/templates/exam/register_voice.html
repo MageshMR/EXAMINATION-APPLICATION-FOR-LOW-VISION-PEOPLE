@@ -1,0 +1,7 @@
+<!-- templates/voice/register_voice.html -->
+<h2>Register Your Voice</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="file" name="voice" accept="audio/wav" required />
+  <button type="submit">Register</button>
+</form>

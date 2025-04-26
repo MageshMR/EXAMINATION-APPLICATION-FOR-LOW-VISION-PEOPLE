@@ -1,0 +1,85 @@
+{% extends 'exam/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2 class="dashboard-title">Admin Dashboard</h2>
+    <div class="dashboard-actions">
+        <a href="/add_question/" class="btn btn-primary">➕ Add New Question</a>
+    </div>
+    
+    <div class="questions-list">
+        <h3>Questions List</h3>
+        {% if questions %}
+            <ul class="question-items">
+                {% for question in questions %}
+                    <li class="question-item">
+                        <span class="question-text">{{ question.text }}</span>
+                        <a href="/edit_question/{{ question.id }}/" class="edit-btn">✏️ Edit</a>
+                        <a href="/delete_question/{{ question.id }}/" class="delete-btn">❌ Delete</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-questions">No questions available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background: linear-gradient(135deg, #ff1d58, #0049B7);
+}
+.dashboard-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.dashboard-actions {
+    margin-bottom: 20px;
+}
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    background: #007bff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.questions-list {
+    text-align: left;
+}
+.question-items {
+    list-style: none;
+    padding: 0;
+}
+.question-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.edit-btn, .delete-btn {
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+.edit-btn {
+    background: #28a745;
+    color: white;
+}
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+.no-questions {
+    color: #777;
+}
+</style>
+{% endblock %}

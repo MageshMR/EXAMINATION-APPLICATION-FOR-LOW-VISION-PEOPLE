@@ -1,0 +1,84 @@
+{% extends 'exam/base.html' %}
+{% block title %}Take Exam{% endblock %}
+{% block content %}
+<h2>Student Exam</h2>
+<ul>
+    {% for question in questions %}
+    <li>
+        <p>{{ question.text }}</p>
+        <button onclick="playAudio('{{ question.id }}')">Listen</button>
+        <button onclick="startRecording('{{ question.id }}')">Answer</button>
+    </li>
+    {% endfor %}
+</ul>
+<script>
+function playAudio(questionId) {
+    fetch(`/tts/${questionId}/`).then(response => response.json()).then(data => {
+        var audio = new Audio(data.audio_url);
+        audio.play();
+    });
+}
+
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        document.cookie.split(';').forEach(cookie => {
+            let trimmed = cookie.trim();
+            if (trimmed.startsWith('csrftoken=')) {
+                cookieValue = decodeURIComponent(trimmed.substring(10));
+            }
+        });
+    }
+    return cookieValue;
+}
+
+function startRecording(questionId) {
+    fetch(`/stt/`)
+    .then(response => response.json())
+    .then(data => {
+        if (!data.answer_text) {
+            alert('Error: No answer detected!');
+            return;
+        }
+
+        alert('Answer Recorded: ' + data.answer_text);
+
+        fetch(`/submit/${questionId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',  
+                'X-CSRFToken': getCSRFToken()  // ✅ Include CSRF token to fix 403 error
+            },
+            body: JSON.stringify({
+                student_name: "Student",  
+                answer_text: data.answer_text
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log(result);
+            if (result.status === "success") {
+                alert("Answer submitted successfully!");
+            } else {
+                alert("Error submitting answer: " + result.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error submitting answer:", error);
+            alert("Submission failed. Check console for details.");
+        });
+    })
+    .catch(error => {
+        console.error("Error in STT request:", error);
+        alert("Speech recognition failed. Try again.");
+    });
+}
+
+</script>
+
+{% endblock %}

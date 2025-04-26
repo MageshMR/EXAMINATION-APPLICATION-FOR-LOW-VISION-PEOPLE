@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Low-Vision Exam System{% endblock %}</title>
+    <link rel="stylesheet" href="/static/exam/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+
+   <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex; /* Enable flexbox for layout */
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            background-color: #494d5f;
+            color: white;
+            width: 250px;
+            padding-top: 20px;
+            height: 100vh; /* Make sidebar full height */
+            position: fixed; /* Fixed sidebar */
+            top: 0;
+            left: 0;
+            overflow-y: auto; /* Enable scrolling if content is long */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #007bff;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        /* Main content area */
+        .content {
+            flex-grow: 1; /* Allow content to take remaining space */
+            margin-left: 250px; /* Match sidebar width */
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 150px;
+                padding-top: 10px;
+            }
+            .sidebar h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+            .sidebar a {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            .sidebar a i {
+                margin-right: 5px;
+            }
+            .content {
+                margin-left: 150px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="position: absolute; top: 20px; right: 30px;">
+        <a href="/admin_login/" style="background: #007bff; padding: 10px 20px; color: white; border-radius: 8px; text-decoration: none;">Admin</a>
+    </div>
+    
+    
+    <div class="sidebar">
+        <h2>Low-Vision Exam System</h2>
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/student_exam/"><i class="fas fa-graduation-cap"></i> Student Exam</a>
+        <a href="/view_answers/"><i class="fas fa-eye"></i> ViewAnswer</a>
+        <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

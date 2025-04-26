@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Student Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 30px;">
+        <img src="{% static 'exam/default_profile.png' %}" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 50%; border: 2px solid #007bff;">
+        <div>
+            <h2 style="margin-bottom: 5px;">{{ student.name }}</h2>
+            <p style="color: #555;">Reg No: {{ student.reg_no }}</p>
+            <p style="color: #555;">Course: {{ student.course }}</p>
+            <p style="color: #555;">Year: {{ student.year }}</p>
+            <p style="color: #555;">Email: {{ student.email }}</p>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 15px;">
+        <a href="#" class="btn-primary">Edit Profile</a>
+        <a href="#" class="btn-secondary">Export to PDF</a>
+    </div>
+</div>
+
+<style>
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+</style>
+{% endblock %}

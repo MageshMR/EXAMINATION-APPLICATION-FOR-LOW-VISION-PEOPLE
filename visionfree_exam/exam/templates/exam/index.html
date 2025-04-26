@@ -1,0 +1,66 @@
+{% extends 'exam/base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #ff1d58, #0049B7);
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    p.lead {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        font-size: 1.2rem;
+        padding: 12px 24px;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-primary {
+        background: #ff7eb3;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #ff5277;
+    }
+
+    .btn-success {
+        background: #57cc99;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: #38a66b;
+    }
+</style>
+
+<div class="container text-center">
+    <h1 class="display-4">Welcome to the Low-Vision Exam System</h1>
+    <p class="lead text-muted">Empowering blind students with seamless, voice-assisted examinations.</p>
+    
+    <div class="mt-4">
+        <a href="/student_exam/" class="btn btn-success m-2">Take Exam</a>
+    </div>
+</div>
+{% endblock %}

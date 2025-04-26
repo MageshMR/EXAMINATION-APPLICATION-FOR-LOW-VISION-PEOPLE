@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Low-Vision Exam System{% endblock %}</title>
+    <link rel="stylesheet" href="/static/exam/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .dashboard-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            background: linear-gradient(135deg, #ff1d58, #0049B7);
+        }
+        .dashboard-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .dashboard-actions {
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background: #007bff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .questions-list {
+            text-align: left;
+        }
+        .question-items {
+            list-style: none;
+            padding: 0;
+        }
+        .question-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .edit-btn, .delete-btn {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .edit-btn {
+            background: #28a745;
+            color: white;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .no-questions {
+            color: #777;
+        }
+        
+        
+        
+        
+        
+        .sidebar {
+                    background-color: #494d5f;
+                    color: white;
+                    width: 250px;
+                    padding-top: 20px;
+                    height: 100vh; /* Make sidebar full height */
+                    position: fixed; /* Fixed sidebar */
+                    top: 0;
+                    left: 0;
+                    overflow-y: auto; /* Enable scrolling if content is long */
+                    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+                }
+        
+                .sidebar h2 {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    color: #007bff;
+                }
+        
+                .sidebar a {
+                    display: block;
+                    padding: 15px 20px;
+                    text-decoration: none;
+                    color: white;
+                    transition: background-color 0.3s ease;
+                }
+        
+                .sidebar a:hover {
+                    background-color: #555;
+                }
+        
+                .sidebar a i {
+                    margin-right: 10px;
+                }
+        </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>Admin-Dashboard</h2>
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <a href="/view_answers/"><i class="fas fa-eye"></i> ViewAnswer</a>
+        <a href="/profile/"><i class="fas fa-user"></i> Profile</a>
+        <a href="{% url 'admin_logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <a href="/voice_record/"><i class="fas fa-sign-out-alt"></i>VoiceRecord</a>
+        </div>
+<div class="content">
+            {% block content %}
+<div class="dashboard-container">
+    <h2 class="dashboard-title">Admin Dashboard</h2>
+    <div class="dashboard-actions">
+        <a href="/add_question/" class="btn btn-primary">➕ Add New Question</a>
+    </div>
+    
+    <div class="questions-list">
+        <h3>Questions List</h3>
+        {% if questions %}
+            <ul class="question-items">
+                {% for question in questions %}
+                    <li class="question-item">
+                        <div class="question-text">
+                            <strong>{{ question.text }}</strong>
+                            <ul>
+                                {% for option in question.options.all %}
+                                    <li>{{ option.text }}</li>
+                                {% empty %}
+                                    <li><em>No options added.</em></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <a href="{% url 'edit_question' question.id %}" class="edit-btn">✏️ Edit</a>
+                        <a href="{% url 'delete_question' question.id %}" class="delete-btn">❌ Delete</a>
+
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-questions">No questions available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+        </div>
+</body>
+</html>
+
+
