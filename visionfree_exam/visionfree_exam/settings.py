@@ -82,7 +82,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 import os
 os.environ["SPEECHBRAIN_LOCAL_DOWNLOAD_STRATEGY"] = "copy"
 
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
  
