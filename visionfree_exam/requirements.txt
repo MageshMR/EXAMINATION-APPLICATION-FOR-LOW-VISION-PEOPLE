@@ -12,6 +12,7 @@ cssselect2==0.8.0
 defusedxml==0.7.1
 Django==5.2
 gTTS==2.5.4
+gunicorn==23.0.0
 html5lib==1.1
 idna==3.10
 lxml==5.4.0
